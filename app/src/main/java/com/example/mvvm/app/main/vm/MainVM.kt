@@ -1,6 +1,7 @@
 package com.example.mvvm.app.main.vm
 
 import android.app.Application
+import android.os.SystemClock
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
@@ -13,10 +14,7 @@ import com.example.mvvmlib.base.BaseViewModel
 import com.example.mvvmlib.event.SingleLiveEvent
 import com.example.mvvmlib.net.ExceptionHandle
 import com.example.mvvmlib.net.ResponseThrowable
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 
 class MainVM(application: Application) : BaseViewModel(application) {
@@ -101,30 +99,49 @@ class MainVM(application: Application) : BaseViewModel(application) {
     @ExperimentalCoroutinesApi
     @FlowPreview
     fun mergeData() {
+//        launchUI {
+//            flow {
+//                emit(homeRepository.getNaviJson())
+//                emit(homeRepository.getHomeList(0))
+//            }
+//                .onStart { defUI.showDialog.postValue(null) }
+//                .flowOn(Dispatchers.IO)
+//                .onCompletion { defUI.dismissDialog.call() }
+//                .catch {
+//                    // 错误处理
+//                    val err = ExceptionHandle.handleException(it)
+//                    Log.d("mergeData", "${err.code}: ${err.errMsg}")
+//                    defUI.toastEvent.postValue("${err.code}:${err.errMsg}")
+//                }
+//                .collect {
+//                    if (it.isSuccess()) {
+////                        if (it.data is HomeListBean) {
+////                            Log.d("rep2", "${it.data}")
+////                        } else {
+////                            Log.d("rep1", "${it.data}")
+////                        }
+//                    }
+//                }
+//        }
+
         launchUI {
-            flow {
-                emit(homeRepository.getNaviJson())
-                emit(homeRepository.getHomeList(0))
+            val x1 =  async{
+                homeRepository.getNaviJson()
             }
-                .onStart { defUI.showDialog.postValue(null) }
-                .flowOn(Dispatchers.IO)
-                .onCompletion { defUI.dismissDialog.call() }
-                .catch {
-                    // 错误处理
-                    val err = ExceptionHandle.handleException(it)
-                    Log.d("mergeData", "${err.code}: ${err.errMsg}")
-                    defUI.toastEvent.postValue("${err.code}:${err.errMsg}")
-                }
-                .collect {
-                    if (it.isSuccess()) {
-//                        if (it.data is HomeListBean) {
-//                            Log.d("rep2", "${it.data}")
-//                        } else {
-//                            Log.d("rep1", "${it.data}")
-//                        }
-                    }
-                }
+            val x2 =  async{
+                homeRepository.getHomeList(0)
+            }
         }
+
+        (0 until 1000).forEach {
+            launchUI {
+                withContext(Dispatchers.Default) {
+                    Log.e("xxxx", Thread.currentThread().toString() + it)
+                }
+
+            }
+        }
+
 
     }
 
@@ -133,7 +150,7 @@ class MainVM(application: Application) : BaseViewModel(application) {
         textView.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
                 val text = s?.toString()?.trim()
-                debounce (waitMs = timeout) {
+                debounce(waitMs = timeout) {
                     homeState.postValue(HomeState().also { it.text = text })
                 }
             }

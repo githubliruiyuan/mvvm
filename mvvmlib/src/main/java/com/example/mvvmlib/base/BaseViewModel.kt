@@ -128,7 +128,7 @@ open class BaseViewModel(application: Application) : AndroidViewModel(applicatio
      * @param complete  完成回调（无论成功失败都会调用）
      * @param isShowDialog 是否显示加载框
      */
-    fun <T> launchOnlyresult(
+    fun <T> launchOnlyResult(
         block: suspend CoroutineScope.() -> BaseResult<T>,
         success: (T) -> Unit,
         error: (ResponseThrowable) -> Unit = {

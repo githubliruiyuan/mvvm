@@ -123,7 +123,7 @@ class MainActivity : BaseActivity<MainVM, ActivityMainBinding>(), View.OnClickLi
 //                viewModel.getFirstData()
 //            }
             R.id.count -> {
-                viewModel.countDown()
+//                viewModel.countDown()
                 viewModel.mergeData()
             }
         }
